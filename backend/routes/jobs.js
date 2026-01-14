@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db/mysql");
 
+// Applicants applying job
 router.get("/", async (req, res) => {
   try {
     let { page = 1, limit = 10, title, location } = req.query;
@@ -14,13 +15,11 @@ router.get("/", async (req, res) => {
     let countQuery = "SELECT COUNT(*) as total FROM jobs WHERE 1=1";
     let params = [];
 
-
     if (title) {
       query += " AND title LIKE ?";
       countQuery += " AND title LIKE ?";
       params.push(`%${title}%`);
     }
-
 
     if (location) {
       query += " AND location = ?";
@@ -33,7 +32,10 @@ router.get("/", async (req, res) => {
 
     const [jobs] = await db.query(query, params);
 
-    const [countResult] = await db.query(countQuery, params.slice(0, params.length - 2));
+    const [countResult] = await db.query(
+      countQuery,
+      params.slice(0, params.length - 2)
+    );
     const totalJobs = countResult[0].total;
     const totalPages = Math.ceil(totalJobs / limit);
 
@@ -44,12 +46,73 @@ router.get("/", async (req, res) => {
       totalPages,
       jobs,
     });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server Error" });
   }
 });
 
+// Recruiter Job Post
 
-module.exports = router; 
+router.post("/", async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      location,
+      experience,
+      company_name,
+      company_logo,
+      company_website,
+      recruiter_id,
+    } = req.body;
+
+    if (
+      !title ||
+      !description ||
+      !location ||
+      !experience ||
+      !company_name ||
+      !recruiter_id
+    ) {
+      return res
+        .status(400)
+        .json({ message: "All required fields must be filled" });
+    }
+
+    const [recruiter] = await db.query(
+      "SELECT id FROM users WHERE id = ? AND role = 'recruiter'",
+      [recruiter_id]
+    );
+
+    if (recruiter.length === 0) {
+      return res.status(400).json({ message: "Invalid recruiter ID" });
+    }
+
+    const [result] = await db.query(
+      `INSERT INTO jobs 
+      (title, description, location, experience, company_name, company_logo, company_website, recruiter_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        title,
+        description,
+        location,
+        experience,
+        company_name,
+        company_logo || null,
+        company_website || null,
+        recruiter_id,
+      ]
+    );
+
+    res.status(201).json({
+      message: "Job created successfully",
+      jobId: result.insertId,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+module.exports = router;
