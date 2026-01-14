@@ -3,7 +3,7 @@
 This is the backend for the **Smart Job Portal** built using  
 **Node.js + Express + MySQL** with JWT authentication.
 
-Iimplemented:
+### Iplemented:
 - User Registration
 - User Login
 - MySQL database connection
@@ -12,7 +12,7 @@ Iimplemented:
 
 ---
 
-## Tech Stack
+### = Tech Stack
 
 - Node.js
 - Express.js
@@ -43,33 +43,37 @@ JWT_SECRET=mysecretkey
 ## MySQL Tables
 1. Users Table
 sql
-```Copy code```
-``` CREATE TABLE users (```
-  ``` id INT AUTO_INCREMENT PRIMARY KEY, ```
-  ``` name VARCHAR(100), ```
-  ``` email VARCHAR(100) UNIQUE, ```
-  ``` password VARCHAR(255), ```
-  ``` role ENUM('candidate','recruiter'), ```
-  ``` created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ```
-);```
+
+```
+ CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY, 
+  name VARCHAR(100),
+  email VARCHAR(100) UNIQUE, 
+  password VARCHAR(255), 
+  role ENUM('candidate','recruiter'),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP); 
+```
+
+<br>
+
 (You can add other tables later: jobs, applications, saved_jobs, etc.)
 
 Install Dependencies
 From inside backend:
-
-bash
-Copy code
 npm install
+
 If not installed already:
+``` npm install express cors mysql2 dotenv bcrypt jsonwebtoken ``` <br>
+```npm install --save-dev nodemon ``` <br>
 
-bash
-Copy code
-``` npm install express cors mysql2 dotenv bcrypt jsonwebtoken ```
-```npm install --save-dev nodemon ```
 Run the Server
-bash
+``` npm run dev ```  <br>
 
-``` npm run dev ```
+###### GET/Jobs - Route (Listing jobs with pagination, filters)
+``` GET http://localhost:5000/jobs ``` 
+``` GET http://localhost:5000/jobs?fullstack ``` 
+
+---
 
 #### Author - ### Prakash M
 

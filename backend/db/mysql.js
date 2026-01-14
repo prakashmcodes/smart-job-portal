@@ -10,9 +10,3 @@ const db = mysql.createPool({
 });
 
 module.exports = db;
-
-console.log({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  db: process.env.DB_NAME
-});
