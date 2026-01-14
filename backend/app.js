@@ -6,6 +6,7 @@ const db = require("./db/mysql");
 
 const authRoutes = require("./routes/auth");
 const jobRoutes = require("./routes/jobs");
+const applicationRoutes = require("./routes/applications");
 
 const app = express();
 
@@ -15,6 +16,9 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/auth", authRoutes);
 app.use("/jobs", jobRoutes);
+app.use("/applications", applicationRoutes);
+
+app.use("/uploads", express.static("uploads"));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
