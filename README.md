@@ -3,7 +3,7 @@
 This is the backend for the **Smart Job Portal** built using  
 **Node.js + Express + MySQL** with JWT authentication.
 
-### Iplemented:
+### Implemented:
 - User Registration
 - User Login
 - MySQL database connection
@@ -12,7 +12,7 @@ This is the backend for the **Smart Job Portal** built using
 
 ---
 
-### = Tech Stack
+### Tech Stack
 
 - Node.js
 - Express.js
@@ -69,9 +69,31 @@ If not installed already:
 Run the Server
 ``` npm run dev ```  <br>
 
-###### GET/Jobs - Route (Listing jobs with pagination, filters)
-``` GET http://localhost:5000/jobs ``` 
+#### POSTMAN TESTING;
+
+### POST/auth/register - Route (Signup with user details like name(required), mail(required), password(required))
+``` GET http://localhost:5000/auth/register ``` <br>
+
+---
+
+### POST/auth/login - Route (Login with user details mail(required), password(required))
+``` GET http://localhost:5000/auth/login ``` <br>
+
+---
+
+### GET/jobs & GET/jobs/:id - Route (For User - Listing jobs with pagination, filters)
+``` GET http://localhost:5000/jobs ``` <br>
 ``` GET http://localhost:5000/jobs?fullstack ``` 
+
+---
+
+### POST/applications - Route (Application with name, mail, resume)
+``` POST http://localhost:5000/applications ```  <br>
+```
+
+with user id, job_id, name, mail and resume file 
+everything expect job id is unique so it can't use duplicate.
+```
 
 ---
 
