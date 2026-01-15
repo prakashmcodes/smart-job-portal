@@ -1,4 +1,10 @@
-# Smart Job Portal – Backend
+# SMART JOB PORTAL
+
+Jump to: [Backend](#backend) - [Frontend](#frontend)
+
+
+<a id="backend"></a>
+## Smart Job Portal – Backend {#backend}
 
 This is the backend for the **Smart Job Portal** built using  
 **Node.js + Express + MySQL** with JWT authentication.
@@ -94,6 +100,9 @@ Run the Server
 with user id, job_id, name, mail and resume file 
 everything expect job id is unique so it can't use duplicate.
 ```
+
+<a id="frontend"></a>
+## Smart Job Portal – Frontend {#frontend}
 
 ---
 
