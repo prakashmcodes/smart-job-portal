@@ -64,6 +64,7 @@ router.post("/", async (req, res) => {
   experience,
   company_name,
   company_about,
+  company_logo,
   company_website,
   recruiter_id
 } = req.body;
@@ -101,9 +102,11 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         location,
         experience,
         company_name,
+        company_about || null,
         company_logo || null,
         company_website || null,
         recruiter_id,
+        requirements || null
       ]
     );
 
