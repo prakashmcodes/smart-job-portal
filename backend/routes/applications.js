@@ -45,35 +45,31 @@ router.get("/", async (req, res) => {
     let query = `
       SELECT 
         a.id,
-        a.job_id,
+        a.name,
+        a.email,
+        a.resume,
         a.status,
         a.applied_at,
-        a.resume,
-        u.name,
-        u.email,
-        j.title AS job_title,
-        j.company_name,
-        j.recruiter_id
+        j.title AS job_title
       FROM applications a
-      JOIN users u ON a.user_id = u.id
       JOIN jobs j ON a.job_id = j.id
     `;
 
     let params = [];
 
-    // Candidate -- only his applications
-    if (role === "candidate") {
-      query += " WHERE a.user_id = ?";
-      params.push(user_id);
-    }
-
-    // Recruiter -- only applications for his jobs
+    // Recruiter → only see applications for their jobs
     if (role === "recruiter") {
-      query += " WHERE j.recruiter_id = ?";
+      query += ` WHERE j.recruiter_id = ?`;
       params.push(user_id);
     }
 
-    query += " ORDER BY a.applied_at DESC";
+    // Candidate → only see their own applications
+    if (role === "candidate") {
+      query += ` WHERE a.user_id = ?`;
+      params.push(user_id);
+    }
+
+    query += ` ORDER BY a.applied_at DESC`;
 
     const [rows] = await db.query(query, params);
     res.json(rows);

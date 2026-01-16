@@ -18,6 +18,12 @@ const PostJobs = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  if (!recruiter_id || !company_name) {
+  toast.error("Recruiter data missing. Please login again.");
+  return;
+}
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

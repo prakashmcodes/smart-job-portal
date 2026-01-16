@@ -32,6 +32,7 @@ const Auth = () => {
 
         localStorage.setItem("userId", res.data.user.id);
         localStorage.setItem("role", res.data.user.role);
+        localStorage.setItem("company_name", res.data.user.company_name || "");
 
         if (res.data.user.company_name) {
           localStorage.setItem("company_name", res.data.user.company_name);
