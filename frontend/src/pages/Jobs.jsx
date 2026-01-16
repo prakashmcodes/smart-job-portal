@@ -41,15 +41,15 @@ if (role === "recruiter") {
     <>
       <NavBar />
       <div className="pt-24 px-16 text-center">
-        <h2 className="text-2xl font-bold mb-4">
+        <h2 className="text-5xl font-bold mb-4">
           Recruiter Dashboard
         </h2>
         <p className="text-gray-600">
-          As a recruiter, you can:
+          YOu are recruiter, so you can:
         </p>
         <ul className="mt-4 space-y-2 text-blue-600">
-          <li>➡ Go to <b>Post Job</b> to add new jobs</li>
-          <li>➡ Go to <b>Applications</b> to view candidates</li>
+          <li>Go to <b>Post Job</b> to add new jobs</li>
+          <li>Go to <b>Applications</b> to view candidates</li>
         </ul>
       </div>
     </>
