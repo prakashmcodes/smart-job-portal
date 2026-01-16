@@ -56,18 +56,18 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-   const {
-  title,
-  description,
-  requirements,
-  location,
-  experience,
-  company_name,
-  company_about,
-  company_logo,
-  company_website,
-  recruiter_id
-} = req.body;
+    const {
+      title,
+      description,
+      requirements,
+      location,
+      experience,
+      company_name,
+      company_about,
+      company_logo,
+      company_website,
+      recruiter_id,
+    } = req.body;
 
     if (
       !title ||
@@ -93,12 +93,12 @@ router.post("/", async (req, res) => {
 
     const [result] = await db.query(
       `INSERT INTO jobs 
-(title, description, requirements, location, experience, company_name, company_about, company_logo, company_website, recruiter_id)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-`,
+  (title, description, requirements, location, experience, company_name, company_about, company_logo, company_website, recruiter_id)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         title,
         description,
+        requirements || null,
         location,
         experience,
         company_name,
@@ -106,7 +106,6 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         company_logo || null,
         company_website || null,
         recruiter_id,
-        requirements || null
       ]
     );
 
@@ -134,6 +133,5 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
 
 module.exports = router;
