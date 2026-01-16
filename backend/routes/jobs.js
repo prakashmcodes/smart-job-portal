@@ -56,16 +56,17 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const {
-      title,
-      description,
-      location,
-      experience,
-      company_name,
-      company_logo,
-      company_website,
-      recruiter_id,
-    } = req.body;
+   const {
+  title,
+  description,
+  requirements,
+  location,
+  experience,
+  company_name,
+  company_about,
+  company_website,
+  recruiter_id
+} = req.body;
 
     if (
       !title ||
@@ -91,8 +92,9 @@ router.post("/", async (req, res) => {
 
     const [result] = await db.query(
       `INSERT INTO jobs 
-      (title, description, location, experience, company_name, company_logo, company_website, recruiter_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+(title, description, requirements, location, experience, company_name, company_about, company_logo, company_website, recruiter_id)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`,
       [
         title,
         description,
@@ -114,5 +116,21 @@ router.post("/", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await db.query("SELECT * FROM jobs WHERE id = ?", [id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 
 module.exports = router;
