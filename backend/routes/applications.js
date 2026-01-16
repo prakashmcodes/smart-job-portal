@@ -40,27 +40,50 @@ router.post("/", upload.single("resume"), async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const [applications] = await db.query(`
+    const { user_id, role } = req.query;
+
+    let query = `
       SELECT 
         a.id,
+        a.job_id,
+        a.status,
+        a.applied_at,
+        a.resume,
         u.name,
         u.email,
         j.title AS job_title,
-        a.status,
-        a.applied_at,
-        a.resume
+        j.company_name,
+        j.recruiter_id
       FROM applications a
       JOIN users u ON a.user_id = u.id
       JOIN jobs j ON a.job_id = j.id
-      ORDER BY a.applied_at DESC
-    `);
+    `;
 
-    res.json(applications);
+    let params = [];
+
+    // Candidate -- only his applications
+    if (role === "candidate") {
+      query += " WHERE a.user_id = ?";
+      params.push(user_id);
+    }
+
+    // Recruiter -- only applications for his jobs
+    if (role === "recruiter") {
+      query += " WHERE j.recruiter_id = ?";
+      params.push(user_id);
+    }
+
+    query += " ORDER BY a.applied_at DESC";
+
+    const [rows] = await db.query(query, params);
+    res.json(rows);
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: err.message });
   }
 });
+
 
 router.patch("/:id/status", async (req, res) => {
   try {
