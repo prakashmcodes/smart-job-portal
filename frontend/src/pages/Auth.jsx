@@ -10,7 +10,9 @@ const Auth = () => {
     name: "",
     email: "",
     password: "",
-    role: "candidate" // default
+    role: "candidate",
+    company_name: "",
+    company_website: "",
   });
 
   const handleChange = (e) => {
@@ -25,13 +27,17 @@ const Auth = () => {
         // LOGIN
         const res = await api.post("/auth/login", {
           email: form.email,
-          password: form.password
+          password: form.password,
         });
 
         localStorage.setItem("userId", res.data.user.id);
         localStorage.setItem("role", res.data.user.role);
-        navigate("/jobs");
 
+        if (res.data.user.company_name) {
+          localStorage.setItem("company_name", res.data.user.company_name);
+        }
+
+        navigate("/jobs");
       } else {
         // REGISTER
         await api.post("/auth/register", form);
@@ -47,7 +53,9 @@ const Auth = () => {
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-linear-to-br from-blue-300 to-blue-400">
       <div>
-        <h1 className="text-gray-950 text-3xl py-6 font-semibold ">Welcome to Smart Job Portal</h1>
+        <h1 className="text-gray-950 text-3xl py-6 font-semibold ">
+          Welcome to Smart Job Portal
+        </h1>
       </div>
       <div className="bg-white p-8 rounded-lg shadow-lg w-96">
         <h2 className="text-3xl font-bold mb-4 text-center">
@@ -55,7 +63,6 @@ const Auth = () => {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-3">
-
           {!isLogin && (
             <>
               <input
@@ -63,6 +70,7 @@ const Auth = () => {
                 placeholder="Full Name"
                 onChange={handleChange}
                 className="border p-2 w-full rounded"
+                required
               />
 
               <select
@@ -73,6 +81,25 @@ const Auth = () => {
                 <option value="candidate">Candidate</option>
                 <option value="recruiter">Recruiter</option>
               </select>
+
+              {form.role === "recruiter" && (
+                <>
+                  <input
+                    name="company_name"
+                    placeholder="Company Name"
+                    onChange={handleChange}
+                    className="border p-2 w-full rounded"
+                    required
+                  />
+
+                  <input
+                    name="company_website"
+                    placeholder="Company Website (optional)"
+                    onChange={handleChange}
+                    className="border p-2 w-full rounded"
+                  />
+                </>
+              )}
             </>
           )}
 
