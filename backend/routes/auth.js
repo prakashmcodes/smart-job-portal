@@ -6,7 +6,8 @@ const db = require("../db/mysql");
 
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, company_name, company_website } =
+      req.body;
 
     if (!name || !email || !password || !role) {
       return res.status(400).json({ message: "All fields are required" });
@@ -24,18 +25,15 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const [result] = await db.query(
-      "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
-      [name, email, hashedPassword, role]
+      "INSERT INTO users (name, email, password, role, company_name, company_website) VALUES (?, ?, ?, ?,?, ?)",
+      [name, email, hashedPassword, role, company_name, company_website]
     );
 
     const userId = result.insertId;
 
-
-    const token = jwt.sign(
-      { id: userId, role: role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
+    const token = jwt.sign({ id: userId, role: role }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
 
     res.status(201).json({
       message: "User registered successfully",
@@ -45,6 +43,8 @@ router.post("/register", async (req, res) => {
         name,
         email,
         role,
+        company_name,
+        company_website,
       },
     });
   } catch (error) {
@@ -53,19 +53,19 @@ router.post("/register", async (req, res) => {
   }
 });
 
-
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
     }
 
-    const [users] = await db.query(
-      "SELECT * FROM users WHERE email = ?",
-      [email]
-    );
+    const [users] = await db.query("SELECT * FROM users WHERE email = ?", [
+      email,
+    ]);
 
     if (users.length === 0) {
       return res.status(400).json({ message: "Invalid email or password" });
@@ -92,14 +92,15 @@ router.post("/login", async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role
-      }
+        role: user.role,
+        company_name: user.company_name,
+        company_website: user.company_website,
+      },
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 });
-
 
 module.exports = router;
