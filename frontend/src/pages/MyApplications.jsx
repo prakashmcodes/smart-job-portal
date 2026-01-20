@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../api/axios";
 import NavBar from "../components/NavBar";
 import { CalendarDays, Briefcase } from "lucide-react";
+import toast from "react-hot-toast";
 
 const MyApplications = () => {
   const [apps, setApps] = useState([]);
@@ -9,19 +10,32 @@ const MyApplications = () => {
 
   useEffect(() => {
     const fetchApps = async () => {
-      const res = await api.get(`/applications?user_id=${userId}`);
+      const res = await api.get("/applications/my");
       setApps(res.data);
     };
     fetchApps();
   }, [userId]);
+
+  const withdrawApplication = async (appId) => {
+  if (!window.confirm("Withdraw this application?")) return;
+
+  try {
+    await api.delete(`/applications/${appId}`);
+    toast.success("Application withdrawn");
+
+    setApps(prev => prev.filter(app => app.id !== appId));
+  } catch (err) {
+    console.error(err);
+    toast.error(err.response?.data?.message || "Cannot withdraw now");
+  }
+};
+
 
   return (
     <>
       <NavBar />
       <div className="min-h-screen bg-slate-100 pt-28 px-4 flex justify-center">
         <div className="w-full max-w-4xl">
-
-          {/* Page Header */}
           <div className="mb-8 text-center">
             <h2 className="text-3xl font-bold text-gray-800">
               My Job Applications
@@ -31,7 +45,6 @@ const MyApplications = () => {
             </p>
           </div>
 
-          {/* Empty State */}
           {apps.length === 0 && (
             <div className="bg-white p-8 rounded-xl shadow text-center">
               <p className="text-lg font-semibold text-gray-700">
@@ -84,10 +97,17 @@ const MyApplications = () => {
                     {app.status}
                   </span>
                 </div>
+                {app.status === "Applied" && (
+                  <button
+                    onClick={() => withdrawApplication(app.id)}
+                    className="mt-3 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 cursor-pointer"
+                  >
+                    Withdraw
+                  </button>
+                )}
               </div>
             ))}
           </div>
-
         </div>
       </div>
     </>
