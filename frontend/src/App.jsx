@@ -7,6 +7,8 @@ import MyApplications from "./pages/MyApplications";
 import ApplyForm from "./pages/ApplyForm";
 import JobDetails from "./pages/JobDetails";
 import { Toaster } from "react-hot-toast";
+import SavedJobs from "./pages/SavedJobs";
+import RecruiterDashboard from "./pages/RecruiterDashboard";
 
 
 const ProtectedRoute = ({ children, role }) => {
@@ -38,6 +40,12 @@ function App() {
           <Route path="/jobs/:id" element={<JobDetails />} />
 
           {/* Recruiter */}
+          <Route path="/recruiter/dashboard" element={
+            <ProtectedRoute>
+              <RecruiterDashboard />
+            </ProtectedRoute>
+          } />
+
           <Route
             path="/post-job"
             element={
@@ -57,6 +65,14 @@ function App() {
           />
 
           {/* Candidate */}
+          <Route
+            path="/savedjobs"
+            element={
+              <ProtectedRoute role="candidate">
+                <SavedJobs />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/apply"
             element={

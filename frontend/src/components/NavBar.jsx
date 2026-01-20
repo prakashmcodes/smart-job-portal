@@ -15,59 +15,63 @@ const NavBar = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-between p-4 py-6">
 
         {/* Job POrtal Title */}
-        <Link to="/jobs" className="text-2xl font-bold text-gray-800">
-          Smart Job Portal
-        </Link>
+        <Link
+  to={role === "recruiter" ? "/recruiter/dashboard" : "/jobs"}
+  className="text-2xl font-bold text-gray-800"
+>
+  Smart Job Portal
+</Link>
+
 
         {/* Links */}
         <ul className="flex gap-6 items-center text-xl font-semibold text-gray-700">
 
-          <li>
-            <Link to="/jobs" className="hover:text-blue-600">
-              Jobs
-            </Link>
-          </li>
-          <li>
-            <Link to="/jobs" className="hover:text-blue-600">
-              Saved Jobs
-            </Link>
-          </li>
+  {role === "candidate" && (
+    <>
+      <li>
+        <Link to="/jobs" className="hover:text-blue-600">Jobs</Link>
+      </li>
+      <li>
+        <Link to="/savedjobs" className="hover:text-blue-600">Saved Jobs</Link>
+      </li>
+      <li>
+        <Link to="/my-applications" className="hover:text-blue-600">
+          My Applications
+        </Link>
+      </li>
+    </>
+  )}
 
-          {/* Candidate Links */}
-          {role === "candidate" && (
-            <li>
-              <Link to="/my-applications" className="hover:text-blue-600">
-                My Applications
-              </Link>
-            </li>
-          )}
+  {role === "recruiter" && (
+    <>
+      <li>
+        <Link to="/recruiter/dashboard" className="hover:text-blue-600">
+          Dashboard
+        </Link>
+      </li>
+      <li>
+        <Link to="/post-job" className="hover:text-blue-600">
+          Post Job
+        </Link>
+      </li>
+      <li>
+        <Link to="/recruiter/applications" className="hover:text-blue-600">
+          Applications
+        </Link>
+      </li>
+    </>
+  )}
 
-          {/* Recruiter Links */}
-          {role === "recruiter" && (
-            <>
-              <li>
-                <Link to="/post-job" className="hover:text-blue-600">
-                  Post Job
-                </Link>
-              </li>
-              <li>
-                <Link to="/recruiter/applications" className="hover:text-blue-600">
-                  Applications
-                </Link>
-              </li>
-            </>
-          )}
+  <li>
+    <button
+      onClick={logout}
+      className="hover:bg-red-500 rounded-full px-3 py-1 cursor-pointer"
+    >
+      Logout
+    </button>
+  </li>
+</ul>
 
-          {/* Logout */}
-          <li>
-            <button
-              onClick={logout}
-              className="hover:bg-red-500 rounded-full text-black px-3 py-1 cursor-pointer  hover:text-gray-600"
-            >
-              Logout
-            </button>
-          </li>
-        </ul>
       </div>
     </nav>
   );
