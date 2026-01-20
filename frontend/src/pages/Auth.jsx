@@ -24,22 +24,23 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        // LOGIN
-        const res = await api.post("/auth/login", {
-          email: form.email,
-          password: form.password,
-        });
+  const res = await api.post("/auth/login", {
+    email: form.email,
+    password: form.password,
+  });
 
-        localStorage.setItem("userId", res.data.user.id);
-        localStorage.setItem("role", res.data.user.role);
-        localStorage.setItem("company_name", res.data.user.company_name || "");
 
-        if (res.data.user.company_name) {
-          localStorage.setItem("company_name", res.data.user.company_name);
-        }
+  localStorage.setItem("token", res.data.token);   // ADD THIS
+  localStorage.setItem("userId", res.data.user.id);
+  localStorage.setItem("role", res.data.user.role);
 
-        navigate("/jobs");
-      } else {
+  if (res.data.user.company_name) {
+    localStorage.setItem("company_name", res.data.user.company_name);
+  }
+
+  navigate("/jobs");
+}
+else {
         // REGISTER
         await api.post("/auth/register", form);
         alert("Registered successfully! Please login.");
