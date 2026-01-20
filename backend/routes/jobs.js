@@ -1,60 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/mysql");
+const {
+  searchJobs,
+  getJobsWithPagination
+} = require("../controllers/jobsController");
+const { protect, recruiterOnly } = require("../middlewares/authMiddleware");
 
-// Applicants applying job
-router.get("/", async (req, res) => {
-  try {
-    let { page = 1, limit = 10, title, location } = req.query;
 
-    page = parseInt(page);
-    limit = parseInt(limit);
-    const offset = (page - 1) * limit;
+router.get("/", getJobsWithPagination);
 
-    let query = "SELECT * FROM jobs WHERE 1=1";
-    let countQuery = "SELECT COUNT(*) as total FROM jobs WHERE 1=1";
-    let params = [];
 
-    if (title) {
-      query += " AND title LIKE ?";
-      countQuery += " AND title LIKE ?";
-      params.push(`%${title}%`);
-    }
+router.get("/search", searchJobs);
 
-    if (location) {
-      query += " AND location = ?";
-      countQuery += " AND location = ?";
-      params.push(location);
-    }
-
-    query += " ORDER BY created_at DESC LIMIT ? OFFSET ?";
-    params.push(limit, offset);
-
-    const [jobs] = await db.query(query, params);
-
-    const [countResult] = await db.query(
-      countQuery,
-      params.slice(0, params.length - 2)
-    );
-    const totalJobs = countResult[0].total;
-    const totalPages = Math.ceil(totalJobs / limit);
-
-    res.json({
-      page,
-      limit,
-      totalJobs,
-      totalPages,
-      jobs,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server Error" });
-  }
-});
-
-// Recruiter Job Post
-
-router.post("/", async (req, res) => {
+router.post("/", protect, recruiterOnly, async (req, res) => {
   try {
     const {
       title,
@@ -66,20 +25,12 @@ router.post("/", async (req, res) => {
       company_about,
       company_logo,
       company_website,
-      recruiter_id,
     } = req.body;
 
-    if (
-      !title ||
-      !description ||
-      !location ||
-      !experience ||
-      !company_name ||
-      !recruiter_id
-    ) {
-      return res
-        .status(400)
-        .json({ message: "All required fields must be filled" });
+    const recruiter_id = req.user.id;
+
+    if (!title || !description || !location || !experience || !company_name) {
+      return res.status(400).json({ message: "All required fields must be filled" });
     }
 
     const [recruiter] = await db.query(
@@ -93,8 +44,8 @@ router.post("/", async (req, res) => {
 
     const [result] = await db.query(
       `INSERT INTO jobs 
-  (title, description, requirements, location, experience, company_name, company_about, company_logo, company_website, recruiter_id)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (title, description, requirements, location, experience, company_name, company_about, company_logo, company_website, recruiter_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         title,
         description,
@@ -119,6 +70,38 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/:id/related", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Get current job
+    const [[job]] = await db.query(
+      "SELECT location FROM jobs WHERE id = ?",
+      [id]
+    );
+
+    if (!job) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
+    // Find related jobs by same location, exclude current job
+    const [relatedJobs] = await db.query(
+      `SELECT * FROM jobs 
+       WHERE location = ? AND id != ?
+       ORDER BY created_at DESC 
+       LIMIT 5`,
+      [job.location, id]
+    );
+
+    res.json(relatedJobs);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Related jobs fetch failed" });
+  }
+});
+
+
+// Job details
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -132,6 +115,23 @@ router.get("/:id", async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
+});
+
+router.delete("/:id", protect, recruiterOnly, async (req, res) => {
+  const { id } = req.params;
+  const recruiter_id = req.user.id;
+
+  const [job] = await db.query(
+    "SELECT * FROM jobs WHERE id = ? AND recruiter_id = ?",
+    [id, recruiter_id]
+  );
+
+  if (job.length === 0) {
+    return res.status(404).json({ message: "Job not found or unauthorized" });
+  }
+
+  await db.query("DELETE FROM jobs WHERE id = ?", [id]);
+  res.json({ message: "Job deleted successfully" });
 });
 
 module.exports = router;

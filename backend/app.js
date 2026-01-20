@@ -7,6 +7,7 @@ const db = require("./db/mysql");
 const authRoutes = require("./routes/auth");
 const jobRoutes = require("./routes/jobs");
 const applicationRoutes = require("./routes/applications");
+const saveJobsRoutes = require("./routes/savejobs");
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/auth", authRoutes);
 app.use("/jobs", jobRoutes);
 app.use("/applications", applicationRoutes);
+app.use("/savejobs", saveJobsRoutes);
 
 app.use("/uploads", express.static("uploads"));
 
