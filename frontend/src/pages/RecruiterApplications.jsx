@@ -10,10 +10,8 @@ const RecruiterApplications = () => {
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const res = await api.get(
-          `/applications?user_id=${userId}&role=${role}`
-        );
-        setApplications(res.data);
+        const res = await api.get("/applications/recruiter");
+setApplications(res.data.applications);
       } catch (err) {
         console.error(err);
       }
