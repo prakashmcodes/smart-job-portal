@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
 import NavBar from "../components/NavBar";
+import { useNavigate } from "react-router-dom";
 
 const PostJobs = () => {
   const [form, setForm] = useState({
@@ -9,97 +10,166 @@ const PostJobs = () => {
     description: "",
     location: "",
     experience: "",
+    requirements: "",
+    company_website: "",
   });
 
-  const recruiter_id = localStorage.getItem("userId");
+  const navigate = useNavigate();
   const company_name = localStorage.getItem("company_name");
+  const role = localStorage.getItem("role");
 
+  // Only recruiters allowed
+  useEffect(() => {
+    if (role !== "recruiter") {
+      toast.error("Access denied. Recruiters only.");
+      navigate("/auth");
+    }
+  }, [role, navigate]);
+
+  // Handle form changes
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  if (!recruiter_id || !company_name) {
-  toast.error("Recruiter data missing. Please login again.");
-  return;
-}
-
-
+  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Frontend validation
+    if (!form.title || !form.description || !form.location || !form.experience) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
     try {
-      await api.post("/jobs", {
+      const payload = {
         ...form,
-        recruiter_id,
-        company_name,
-      });
+        company_name, // must come from localStorage
+      };
+
+      console.log("POSTING JOB DATA:", payload); // Debug line
+
+      await api.post("/jobs", payload);
 
       toast.success("Job posted successfully 🚀");
-      setForm({ title: "", description: "", location: "", experience: "" });
+
+      setForm({
+        title: "",
+        description: "",
+        location: "",
+        experience: "",
+        requirements: "",
+        company_website: "",
+      });
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to post job");
+      console.error(err.response?.data || err);
+      toast.error(err.response?.data?.message || "Failed to post job");
     }
   };
 
   return (
     <>
       <NavBar />
-      <div className="min-h-screen bg-slate-100 flex justify-center items-start pt-28">
-        <div className="bg-white w-full max-w-lg p-8 rounded-xl shadow-lg">
-          <h2 className="text-2xl font-bold text-center mb-6">
+      <div className="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200 flex justify-center pt-28">
+        <div className="bg-white w-full max-w-2xl p-8 rounded-2xl shadow-xl">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">
             Post a New Job
           </h2>
 
-          <p className="text-sm text-gray-500 text-center mb-4">
-            Posting as <b>{company_name}</b>
+          <p className="text-sm text-gray-500 text-center mb-6">
+            Posting as <span className="font-semibold">{company_name}</span>
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="text"
-              name="title"
-              value={form.title}
-              placeholder="Job Title"
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-            />
+          {/* Company name (read-only) */}
+          <input
+            value={company_name || ""}
+            disabled
+            className="w-full mb-4 p-2 border rounded-lg bg-gray-100 cursor-not-allowed"
+          />
 
-            <textarea
-              name="description"
-              value={form.description}
-              placeholder="Job Description"
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              rows="4"
-              required
-            />
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium">Job Title *</label>
+              <input
+                name="title"
+                value={form.title}
+                onChange={handleChange}
+                className="w-full mt-1 p-2 border rounded-lg"
+                placeholder="Frontend Developer"
+                required
+              />
+            </div>
 
-            <input
-              type="text"
-              name="location"
-              value={form.location}
-              placeholder="Location"
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-            />
+            <div>
+              <label className="block text-sm font-medium">Description *</label>
+              <textarea
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                rows="4"
+                className="w-full mt-1 p-2 border rounded-lg"
+                required
+              />
+            </div>
 
-            <input
-              type="text"
-              name="experience"
-              value={form.experience}
-              placeholder="Experience Required"
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium">Location *</label>
+                <input
+                  name="location"
+                  value={form.location}
+                  onChange={handleChange}
+                  className="w-full mt-1 p-2 border rounded-lg"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium">Experience *</label>
+                <input
+                  name="experience"
+                  value={form.experience}
+                  onChange={handleChange}
+                  className="w-full mt-1 p-2 border rounded-lg"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium">
+                Requirements (optional)
+              </label>
+              <textarea
+                name="requirements"
+                value={form.requirements}
+                onChange={handleChange}
+                rows="3"
+                className="w-full mt-1 p-2 border rounded-lg"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium">
+                Company Website (optional)
+              </label>
+              <input
+                name="company_website"
+                value={form.company_website}
+                onChange={handleChange}
+                className="w-full mt-1 p-2 border rounded-lg"
+              />
+            </div>
 
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+              className="w-full py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition"
             >
-              Post Job
+              🚀 Post Job
             </button>
           </form>
         </div>
